@@ -16,7 +16,7 @@ class Nektar < Formula
 
   option "with-demos", "Compile Nektar++ demo executables"
 
-  depends_on "cmake"  => :run
+  depends_on "cmake"  => :build
   depends_on "boost"
   depends_on "tinyxml"
   depends_on "homebrew/dupes/zlib"
