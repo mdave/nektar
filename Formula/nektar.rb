@@ -10,13 +10,13 @@ end
 class Nektar < Formula
   desc "Nektar++ spectral/hp element framework"
   homepage "https://www.nektar.info/"
-  url "http://www.nektar.info/downloads/file/nektar-4.3.1.tar.gz"
-  sha256 "bbea48c94c6a82556fe44238c3dc6eb8f931196bc4b8451b38e15c76d0a1f24a"
+  url "http://www.nektar.info/downloads/file/nektar-4.3.2.tar.gz"
+  sha256 "afa20b74ed19165c9356f5ec5e33dac7de9bf48e7f2076db6488c7c03d331dd0"
   head "https://gitlab.nektar.info/nektar/nektar.git"
 
   option "with-demos", "Compile Nektar++ demo executables"
 
-  depends_on "cmake"  => :build
+  depends_on "cmake"  => :run
   depends_on "boost"
   depends_on "tinyxml"
   depends_on "homebrew/dupes/zlib"
