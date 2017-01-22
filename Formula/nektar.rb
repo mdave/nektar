@@ -10,8 +10,8 @@ end
 class Nektar < Formula
   desc "Nektar++ spectral/hp element framework"
   homepage "https://www.nektar.info/"
-  url "http://www.nektar.info/downloads/file/nektar-4.3.2.tar.gz"
-  sha256 "afa20b74ed19165c9356f5ec5e33dac7de9bf48e7f2076db6488c7c03d331dd0"
+  url "http://www.nektar.info/downloads/file/nektar-4.3.4.tar.gz"
+  sha256 "5207f8010d77fbc53c9407698de5426cae90d1a054fecf41ecc04060226d65f5"
   head "https://gitlab.nektar.info/nektar/nektar.git"
 
   option "with-demos", "Compile Nektar++ demo executables"
