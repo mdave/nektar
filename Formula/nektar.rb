@@ -10,66 +10,40 @@ end
 class Nektar < Formula
   desc "Nektar++ spectral/hp element framework"
   homepage "https://www.nektar.info/"
-  url "http://www.nektar.info/downloads/file/nektar-4.3.4.tar.gz"
-  sha256 "5207f8010d77fbc53c9407698de5426cae90d1a054fecf41ecc04060226d65f5"
+  #url "http://www.nektar.info/downloads/file/nektar-4.3.4.tar.gz"
+  #sha256 "5207f8010d77fbc53c9407698de5426cae90d1a054fecf41ecc04060226d65f5"
   head "https://gitlab.nektar.info/nektar/nektar.git"
 
   option "with-demos", "Compile Nektar++ demo executables"
 
-  depends_on "cmake"  => :run
+  depends_on "cmake"
   depends_on "boost"
   depends_on "tinyxml"
-  depends_on "homebrew/dupes/zlib"
+  depends_on "zlib"
+  depends_on "opencascade"
+  depends_on "scotch"
+  depends_on "hdf5"
   depends_on "vtk"    => :recommended
   depends_on :mpi     => :recommended
   depends_on "arpack" => :recommended
   depends_on "fftw"   => :recommended
   depends_on "petsc"  => :recommended
-  depends_on "scotch" => :optional
-
-  # Modified version of the METIS library
-  resource "modmetis" do
-    url "https://www.nektar.info/thirdparty/modmetis-5.1.0_2.tar.bz2",
-      :using => NektarThirdPartyDownloadStrategy
-    sha256 "c6496cb32c892b5ab1f78484040c1f8d53b48da232c7a7e085239ea5bd431392"
-  end
-
-  # Loki header library
-  resource "loki" do
-    url "https://www.nektar.info/thirdparty/loki-0.1.3.tar.bz2",
-      :using => NektarThirdPartyDownloadStrategy
-    sha256 "1f7aed37eec4afb113f60507955e9621808d4e34b0cb9a3c89c793e57888b65e"
-  end
-
-  # GsMpi library extracted from Nek5000 code
-  resource "gsmpi" do
-    url "https://www.nektar.info/thirdparty/gsmpi-1.2.tar.bz2",
-      :using => NektarThirdPartyDownloadStrategy
-    sha256 "ffca1d418cb7e4353de89ee11fa9fdaa878d0de5110b95b9e13e43761098ec8e"
-  end
 
   def install
-    # Copy third-party archives to ThirdParty directory. Nektar++ uses CMake
-    # ExternalProject to unpack them.
-    tp = File.join(buildpath, "ThirdParty")
-    Dir.mkdir(tp)
-    resources.each do |r|
-      r.stage do
-        cp File.basename(r.url)[/[^?]+/], tp
-      end
-    end
-
     args = std_cmake_args + ["-DNEKTAR_BUILD_TESTS=OFF",
                              "-DNEKTAR_BUILD_UNIT_TESTS=OFF",
                              "-DZLIB_ROOT=#{Formula["zlib"].opt_prefix}"]
 
-    args << "-DNEKTAR_BUILD_DEMOS=ON"  if build.with?    "demos"
-    args << "-DNEKTAR_BUILD_DEMOS=OFF" if build.without? "demos"
-    args << "-DNEKTAR_USE_MPI=ON"      if build.with?    :mpi
-    args << "-DNEKTAR_USE_ARPACK=ON"   if build.with?    "arpack"
-    args << "-DNEKTAR_USE_FFTW=ON"     if build.with?    "fftw"
-    args << "-DNEKTAR_USE_VTK=ON"      if build.with?    "vtk"
-    args << "-DNEKTAR_USE_SCOTCH=ON"   if build.with?    "scotch"
+    args << "-DNEKTAR_BUILD_DEMOS=ON"   if build.with?    "demos"
+    args << "-DNEKTAR_BUILD_DEMOS=OFF"  if build.without? "demos"
+    args << "-DNEKTAR_BUILD_MESHGEN=ON" if build.with?    "opencascade"
+    args << "-DNEKTAR_USE_MPI=ON"       if build.with?    :mpi
+    args << "-DNEKTAR_USE_ARPACK=ON"    if build.with?    "arpack"
+    args << "-DNEKTAR_USE_FFTW=ON"      if build.with?    "fftw"
+    args << "-DNEKTAR_USE_VTK=ON"       if build.with?    "vtk"
+    args << "-DNEKTAR_USE_SCOTCH=ON"    if build.with?    "scotch"
+    args << "-DNEKTAR_USE_ARPACK=ON"    if build.with?    "arpack"
+    args << "-DNEKTAR_USE_HDF5=ON"      if build.with?    "hdf5"
 
     if build.with? "petsc"
       petscdir = File.join(Formula["petsc"].opt_prefix, "real")
