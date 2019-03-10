@@ -22,12 +22,13 @@ class Nektar < Formula
   depends_on "zlib"
   depends_on "opencascade"
   depends_on "scotch"
-  depends_on "hdf5"
-  depends_on "vtk"    => :recommended
-  depends_on :mpi     => :recommended
-  depends_on "arpack" => :recommended
-  depends_on "fftw"   => :recommended
-  depends_on "petsc"  => :recommended
+  depends_on "hdf5"     => :recommended
+  depends_on "vtk"      => :recommended
+  depends_on "open-mpi" => :recommended
+  depends_on "arpack"   => :recommended
+  depends_on "fftw"     => :recommended
+  depends_on "petsc"    => :recommended
+  depends_on "metis"    => :recommended
 
   def install
     args = std_cmake_args + ["-DNEKTAR_BUILD_TESTS=OFF",
