@@ -1,56 +1,43 @@
-# Nektar++ will, by default, download and build its ThirdParty
-# dependencies. This download strategy has been added so that Homebrew can
-# download resources and check hashes independently.
-class NektarThirdPartyDownloadStrategy < CurlDownloadStrategy
-  def stage
-    cp cached_location, basename_without_params
-  end
-end
-
 class Nektar < Formula
   desc "Nektar++ spectral/hp element framework"
   homepage "https://www.nektar.info/"
-  #url "http://www.nektar.info/downloads/file/nektar-4.3.4.tar.gz"
-  #sha256 "5207f8010d77fbc53c9407698de5426cae90d1a054fecf41ecc04060226d65f5"
-  head "https://gitlab.nektar.info/nektar/nektar.git"
-
-  option "with-demos", "Compile Nektar++ demo executables"
+  url "https://gitlab.nektar.info/nektar/nektar/-/archive/v5.1.0/nektar-v5.1.0.tar.bz2"
+  sha256 "d03114ee1a38708e4b0f86bedcf957980c88e8576acaf6101a904155c8a84317"
 
   depends_on "cmake"
+  depends_on "open-mpi"
+  depends_on "hdf5-mpi"
   depends_on "boost"
+  depends_on "boost-python3"
   depends_on "tinyxml"
   depends_on "zlib"
   depends_on "opencascade"
   depends_on "scotch"
-  depends_on "hdf5"     => :recommended
-  depends_on "vtk"      => :recommended
-  depends_on "open-mpi" => :recommended
-  depends_on "arpack"   => :recommended
-  depends_on "fftw"     => :recommended
-  depends_on "petsc"    => :recommended
-  depends_on "metis"    => :recommended
+  depends_on "vtk"
+  depends_on "arpack"
+  depends_on "fftw"
+  depends_on "petsc"
 
   def install
     args = std_cmake_args + ["-DNEKTAR_BUILD_TESTS=OFF",
                              "-DNEKTAR_BUILD_UNIT_TESTS=OFF",
                              "-DZLIB_ROOT=#{Formula["zlib"].opt_prefix}"]
 
-    args << "-DNEKTAR_BUILD_DEMOS=ON"   if build.with?    "demos"
-    args << "-DNEKTAR_BUILD_DEMOS=OFF"  if build.without? "demos"
-    args << "-DNEKTAR_BUILD_MESHGEN=ON" if build.with?    "opencascade"
-    args << "-DNEKTAR_USE_MPI=ON"       if build.with?    :mpi
-    args << "-DNEKTAR_USE_ARPACK=ON"    if build.with?    "arpack"
-    args << "-DNEKTAR_USE_FFTW=ON"      if build.with?    "fftw"
-    args << "-DNEKTAR_USE_VTK=ON"       if build.with?    "vtk"
-    args << "-DNEKTAR_USE_SCOTCH=ON"    if build.with?    "scotch"
-    args << "-DNEKTAR_USE_ARPACK=ON"    if build.with?    "arpack"
-    args << "-DNEKTAR_USE_HDF5=ON"      if build.with?    "hdf5"
+    args << "-DNEKTAR_BUILD_DEMOS=OFF"
+    args << "-DNEKTAR_BUILD_MESHGEN=ON"
+    args << "-DNEKTAR_BUILD_PYTHON=ON"
+    args << "-DNEKTAR_USE_MPI=ON"
+    args << "-DNEKTAR_USE_ARPACK=ON"
+    args << "-DNEKTAR_USE_FFTW=ON"
+    args << "-DNEKTAR_USE_VTK=ON"
+    args << "-DNEKTAR_USE_SCOTCH=ON"
+    args << "-DNEKTAR_USE_ARPACK=ON"
+    args << "-DNEKTAR_USE_HDF5=ON"
 
-    if build.with? "petsc"
-      petscdir = File.join(Formula["petsc"].opt_prefix, "real")
-      args << "-DNEKTAR_USE_PETSC=ON"
-      args << "-DPETSC_DIR=#{petscdir}"
-    end
+    # Adjust search path for PETSc dir.
+    petscdir = File.join(Formula["petsc"].opt_prefix, "real")
+    args << "-DNEKTAR_USE_PETSC=ON"
+    args << "-DPETSC_DIR=#{petscdir}"
 
     mkdir "build" do
       system "cmake", "..", *args
