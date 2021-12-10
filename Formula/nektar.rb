@@ -6,8 +6,9 @@ class Nektar < Formula
   revision 2
 
   bottle do
-    root_url "https://github.com/mdave/homebrew-nektar/releases/download/nektar-5.1.0_1"
-    sha256 catalina: "147819c64447c24e259f030795503379ee48c8ea2e76560ff0c18dc11af06bab"
+    root_url "https://github.com/mdave/homebrew-nektar/releases/download/nektar-5.1.0_2"
+    sha256 big_sur:  "d236f72eb594b786ac85b08466292a2f941c2403862960e7cb6d5816469b545b"
+    sha256 catalina: "e9fd89bef4fde8514a4223959900f780ef566b8eaae0c41db11a9ec05b068c05"
   end
 
   depends_on "arpack"
