@@ -5,6 +5,11 @@ class Nektar < Formula
   sha256 "f5fdb729909e4dcd42cb071f06569634fa87fe90384ba0f2f857a9e0e56b6ac5"
   revision 1
 
+  bottle do
+    root_url "https://github.com/mdave/homebrew-nektar/releases/download/nektar-5.1.0_1"
+    sha256 catalina: "147819c64447c24e259f030795503379ee48c8ea2e76560ff0c18dc11af06bab"
+  end
+
   depends_on "arpack"
   depends_on "boost"
   depends_on "boost-python3"
