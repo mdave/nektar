@@ -3,7 +3,7 @@ class Nektar < Formula
   homepage "https://www.nektar.info/"
   url "https://gitlab.nektar.info/nektar/nektar/-/archive/v5.1.0/nektar-v5.1.0.tar.bz2"
   sha256 "f5fdb729909e4dcd42cb071f06569634fa87fe90384ba0f2f857a9e0e56b6ac5"
-  revision 1
+  revision 2
 
   bottle do
     root_url "https://github.com/mdave/homebrew-nektar/releases/download/nektar-5.1.0_1"
