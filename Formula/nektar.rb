@@ -1,15 +1,8 @@
 class Nektar < Formula
   desc "High-performance spectral/hp element framework"
   homepage "https://www.nektar.info/"
-  url "https://gitlab.nektar.info/nektar/nektar/-/archive/v5.1.0/nektar-v5.1.0.tar.bz2"
-  sha256 "f5fdb729909e4dcd42cb071f06569634fa87fe90384ba0f2f857a9e0e56b6ac5"
-  revision 2
-
-  bottle do
-    root_url "https://github.com/mdave/homebrew-nektar/releases/download/nektar-5.1.0_2"
-    sha256 big_sur:  "d236f72eb594b786ac85b08466292a2f941c2403862960e7cb6d5816469b545b"
-    sha256 catalina: "e9fd89bef4fde8514a4223959900f780ef566b8eaae0c41db11a9ec05b068c05"
-  end
+  url "https://gitlab.nektar.info/nektar/nektar/-/archive/v5.2.0/nektar-v5.2.0.tar.bz2"
+  sha256 "b58f7cff1d2579822c3f11a9b2bb0faa25c15709a8033755239a872ab5889719"
 
   depends_on "arpack"
   depends_on "boost"
@@ -20,6 +13,7 @@ class Nektar < Formula
   depends_on "numpy"
   depends_on "open-mpi"
   depends_on "opencascade"
+  depends_on "python@3.10"
   depends_on "scotch"
   depends_on "tinyxml"
   depends_on "zlib"
@@ -45,7 +39,7 @@ class Nektar < Formula
     args << "-DNEKTAR_USE_SCOTCH=ON"
     args << "-DNEKTAR_USE_ARPACK=ON"
     args << "-DNEKTAR_USE_HDF5=ON"
-    args << "-DPYTHON_EXECUTABLE=#{Formula["python@3.9"].opt_bin}/python3"
+    args << "-DPYTHON_EXECUTABLE=#{Formula["python@3.10"].opt_bin}/python3"
 
     # Compile with C++14 support for boost 1.75+
     args << "-DCMAKE_CXX_STANDARD=14"
@@ -55,7 +49,7 @@ class Nektar < Formula
       system "make", "install"
 
       # Also need to install NekPy bindings
-      python = Formula["python@3.9"]
+      python = Formula["python@3.10"]
       system python.bin/"python3", *Language::Python.setup_install_args(prefix)
 
       site_packages = Language::Python.site_packages(python)
@@ -165,7 +159,7 @@ class Nektar < Formula
     system "cmake", "-DNektar++_DIR=#{lib}/nektar++/cmake/", "."
     system "make"
     assert (`./helm input.xml`.to_f < 1.0e-8)
-    python = Formula["python@3.9"]
+    python = Formula["python@3.10"]
     system python.bin/"python3", "project.py"
   end
 end
@@ -207,3 +201,61 @@ index c062dd833..a1983abf4 100644
      ENDIF()
  
      MARK_AS_ADVANCED(HDF5_LIBRARIES)
+diff --git a/library/NekMesh/CADSystem/OCE/OpenCascade.h b/library/NekMesh/CADSystem/OCE/OpenCascade.h
+index 8ed19f9a2..47df00dd7 100644
+--- a/library/NekMesh/CADSystem/OCE/OpenCascade.h
++++ b/library/NekMesh/CADSystem/OCE/OpenCascade.h
+@@ -60,7 +60,6 @@
+ #include <BRep_Tool.hxx>
+ #include <GCPnts_AbscissaPoint.hxx>
+ #include <GProp_GProps.hxx>
+-#include <GeomAdaptor_HSurface.hxx>
+ #include <GeomLProp_CLProps.hxx>
+ #include <GeomLProp_SLProps.hxx>
+ #include <ShapeAnalysis_Curve.hxx>
+diff --git a/library/SolverUtils/Advection/Advection.h b/library/SolverUtils/Advection/Advection.h
+index 277008d4e..3444b2c09 100644
+--- a/library/SolverUtils/Advection/Advection.h
++++ b/library/SolverUtils/Advection/Advection.h
+@@ -45,8 +45,6 @@
+ #include <SolverUtils/SolverUtilsDeclspec.h>
+ #include <iomanip>
+ 
+-using namespace std;
+-
+ namespace Nektar
+ {
+ namespace SolverUtils
+diff --git a/solvers/IncNavierStokesSolver/EquationSystems/StandardExtrapolate.cpp b/solvers/IncNavierStokesSolver/EquationSystems/StandardExtrapolate.cpp
+index 6b75d7c71..ab1d2c8de 100644
+--- a/solvers/IncNavierStokesSolver/EquationSystems/StandardExtrapolate.cpp
++++ b/solvers/IncNavierStokesSolver/EquationSystems/StandardExtrapolate.cpp
+@@ -167,7 +167,7 @@ void StandardExtrapolate::v_AccelerationBDF(
+         Array<OneD, NekDouble> accelerationTerm(nPts, 0.0);
+         if (m_pressureCalls > 2)
+         {
+-            int acc_order = min(m_pressureCalls - 2, m_intSteps);
++            int acc_order = std::min(m_pressureCalls - 2, m_intSteps);
+             Vmath::Smul(nPts, DuDt_Coeffs[acc_order - 1][0], array[0], 1,
+                         accelerationTerm, 1);
+ 
+diff --git a/library/FieldUtils/ProcessModules/ProcessInterpField.cpp b/library/FieldUtils/ProcessModules/ProcessInterpField.cpp
+index b1cf6ec78..eab7a21d4 100644
+--- a/library/FieldUtils/ProcessModules/ProcessInterpField.cpp
++++ b/library/FieldUtils/ProcessModules/ProcessInterpField.cpp
+@@ -33,7 +33,6 @@
+ ////////////////////////////////////////////////////////////////////////////////
+ #include <iostream>
+ #include <string>
+-using namespace std;
+ 
+ #include <boost/core/ignore_unused.hpp>
+ #include <boost/geometry.hpp>
+@@ -46,6 +45,7 @@ using namespace std;
+ 
+ #include "ProcessInterpField.h"
+ 
++using namespace std;
+ namespace bg  = boost::geometry;
+ namespace bgi = boost::geometry::index;
+ 
