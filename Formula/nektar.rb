@@ -4,6 +4,13 @@ class Nektar < Formula
   url "https://gitlab.nektar.info/nektar/nektar/-/archive/v5.2.0/nektar-v5.2.0.tar.bz2"
   sha256 "b58f7cff1d2579822c3f11a9b2bb0faa25c15709a8033755239a872ab5889719"
 
+  bottle do
+    root_url "https://github.com/mdave/homebrew-nektar/releases/download/nektar-5.2.0"
+    sha256 cellar: :any, monterey: "08572273b055ceef537a161114ad5e60876eda9f4d24f8a0088602168a877aee"
+    sha256 cellar: :any, big_sur:  "93ff190edd12c1b91e440a1daff98291d0f1826fe1212961921483ca6d49c1e5"
+    sha256 cellar: :any, catalina: "723dadc6965eb8b97e9aeea40ecfafdd59e03f4c2cbb3ed7a88a5c56c5afa729"
+  end
+
   depends_on "arpack"
   depends_on "boost"
   depends_on "boost-python3"
