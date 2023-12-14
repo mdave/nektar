@@ -13,8 +13,8 @@ class Nektar < Formula
   depends_on "numpy"
   depends_on "open-mpi"
   depends_on "opencascade"
-  depends_on "python@3.12"
   depends_on "python-setuptools"
+  depends_on "python@3.12"
   depends_on "scotch"
   depends_on "tinyxml"
   depends_on "zlib"
@@ -43,7 +43,7 @@ class Nektar < Formula
     args << "-DPYTHON_EXECUTABLE=#{Formula["python@3.12"].opt_bin}/python3.12"
 
     mkdir "build" do
-      system "rm", "../cmake/FindHDF5.cmake"
+      rm "../cmake/FindHDF5.cmake"
       system "cmake", "..", *args
       system "make", "install"
 
