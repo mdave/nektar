@@ -1,15 +1,8 @@
 class Nektar < Formula
   desc "High-performance spectral/hp element framework"
   homepage "https://www.nektar.info/"
-  url "https://gitlab.nektar.info/nektar/nektar/-/archive/v5.2.0/nektar-v5.2.0.tar.bz2"
-  sha256 "b58f7cff1d2579822c3f11a9b2bb0faa25c15709a8033755239a872ab5889719"
-
-  bottle do
-    root_url "https://github.com/mdave/homebrew-nektar/releases/download/nektar-5.2.0"
-    sha256 cellar: :any, monterey: "08572273b055ceef537a161114ad5e60876eda9f4d24f8a0088602168a877aee"
-    sha256 cellar: :any, big_sur:  "93ff190edd12c1b91e440a1daff98291d0f1826fe1212961921483ca6d49c1e5"
-    sha256 cellar: :any, catalina: "723dadc6965eb8b97e9aeea40ecfafdd59e03f4c2cbb3ed7a88a5c56c5afa729"
-  end
+  url "https://gitlab.nektar.info/nektar/nektar/-/archive/v5.4.0/nektar-v5.4.0.tar.bz2"
+  sha256 "d83103385b0809064296cb83c5b1fa61d4d9d138f99a585d78f3cfde6e6586f9"
 
   depends_on "arpack"
   depends_on "boost"
@@ -20,7 +13,8 @@ class Nektar < Formula
   depends_on "numpy"
   depends_on "open-mpi"
   depends_on "opencascade"
-  depends_on "python@3.10"
+  depends_on "python-setuptools"
+  depends_on "python@3.12"
   depends_on "scotch"
   depends_on "tinyxml"
   depends_on "zlib"
@@ -46,18 +40,16 @@ class Nektar < Formula
     args << "-DNEKTAR_USE_SCOTCH=ON"
     args << "-DNEKTAR_USE_ARPACK=ON"
     args << "-DNEKTAR_USE_HDF5=ON"
-    args << "-DPYTHON_EXECUTABLE=#{Formula["python@3.10"].opt_bin}/python3"
-
-    # Compile with C++14 support for boost 1.75+
-    args << "-DCMAKE_CXX_STANDARD=14"
+    args << "-DPYTHON_EXECUTABLE=#{Formula["python@3.12"].opt_bin}/python3.12"
 
     mkdir "build" do
+      rm "../cmake/FindHDF5.cmake"
       system "cmake", "..", *args
       system "make", "install"
 
       # Also need to install NekPy bindings
-      python = Formula["python@3.10"]
-      system python.bin/"python3", *Language::Python.setup_install_args(prefix)
+      python = Formula["python@3.12"]
+      system python.bin/"python3.12", *Language::Python.setup_install_args(prefix)
 
       site_packages = Language::Python.site_packages(python)
       pth_contents = "import site; site.addsitedir('#{libexec/site_packages}')\n"
@@ -166,8 +158,8 @@ class Nektar < Formula
     system "cmake", "-DNektar++_DIR=#{lib}/nektar++/cmake/", "."
     system "make"
     assert (`./helm input.xml`.to_f < 1.0e-8)
-    python = Formula["python@3.10"]
-    system python.bin/"python3", "project.py"
+    python = Formula["python@3.12"]
+    system python.bin/"python3.12", "project.py"
   end
 end
 
@@ -193,76 +185,3 @@ index 01274b4fe..e14263b46 100644
  
      IF (NEKPY_LIBDEPENDS)
          TARGET_LINK_LIBRARIES(_${name} ${NEKPY_LIBDEPENDS})
-diff --git a/cmake/ThirdPartyHDF5.cmake b/cmake/ThirdPartyHDF5.cmake
-index c062dd833..a1983abf4 100644
---- a/cmake/ThirdPartyHDF5.cmake
-+++ b/cmake/ThirdPartyHDF5.cmake
-@@ -69,6 +69,10 @@ IF (NEKTAR_USE_HDF5)
-         MESSAGE(STATUS "Found HDF5: ${HDF5_LIBRARIES}")
-         SET(HDF5_CONFIG_INCLUDE_DIR ${HDF5_INCLUDE_DIRS})
-         ADD_CUSTOM_TARGET(hdf5-1.8.16 ALL)
-+
-+        IF(HDF5_VERSION VERSION_GREATER_EQUAL 1.10.0)
-+            ADD_DEFINITIONS(-DH5_USE_110_API)
-+        ENDIF()
-     ENDIF()
- 
-     MARK_AS_ADVANCED(HDF5_LIBRARIES)
-diff --git a/library/NekMesh/CADSystem/OCE/OpenCascade.h b/library/NekMesh/CADSystem/OCE/OpenCascade.h
-index 8ed19f9a2..47df00dd7 100644
---- a/library/NekMesh/CADSystem/OCE/OpenCascade.h
-+++ b/library/NekMesh/CADSystem/OCE/OpenCascade.h
-@@ -60,7 +60,6 @@
- #include <BRep_Tool.hxx>
- #include <GCPnts_AbscissaPoint.hxx>
- #include <GProp_GProps.hxx>
--#include <GeomAdaptor_HSurface.hxx>
- #include <GeomLProp_CLProps.hxx>
- #include <GeomLProp_SLProps.hxx>
- #include <ShapeAnalysis_Curve.hxx>
-diff --git a/library/SolverUtils/Advection/Advection.h b/library/SolverUtils/Advection/Advection.h
-index 277008d4e..3444b2c09 100644
---- a/library/SolverUtils/Advection/Advection.h
-+++ b/library/SolverUtils/Advection/Advection.h
-@@ -45,8 +45,6 @@
- #include <SolverUtils/SolverUtilsDeclspec.h>
- #include <iomanip>
- 
--using namespace std;
--
- namespace Nektar
- {
- namespace SolverUtils
-diff --git a/solvers/IncNavierStokesSolver/EquationSystems/StandardExtrapolate.cpp b/solvers/IncNavierStokesSolver/EquationSystems/StandardExtrapolate.cpp
-index 6b75d7c71..ab1d2c8de 100644
---- a/solvers/IncNavierStokesSolver/EquationSystems/StandardExtrapolate.cpp
-+++ b/solvers/IncNavierStokesSolver/EquationSystems/StandardExtrapolate.cpp
-@@ -167,7 +167,7 @@ void StandardExtrapolate::v_AccelerationBDF(
-         Array<OneD, NekDouble> accelerationTerm(nPts, 0.0);
-         if (m_pressureCalls > 2)
-         {
--            int acc_order = min(m_pressureCalls - 2, m_intSteps);
-+            int acc_order = std::min(m_pressureCalls - 2, m_intSteps);
-             Vmath::Smul(nPts, DuDt_Coeffs[acc_order - 1][0], array[0], 1,
-                         accelerationTerm, 1);
- 
-diff --git a/library/FieldUtils/ProcessModules/ProcessInterpField.cpp b/library/FieldUtils/ProcessModules/ProcessInterpField.cpp
-index b1cf6ec78..eab7a21d4 100644
---- a/library/FieldUtils/ProcessModules/ProcessInterpField.cpp
-+++ b/library/FieldUtils/ProcessModules/ProcessInterpField.cpp
-@@ -33,7 +33,6 @@
- ////////////////////////////////////////////////////////////////////////////////
- #include <iostream>
- #include <string>
--using namespace std;
- 
- #include <boost/core/ignore_unused.hpp>
- #include <boost/geometry.hpp>
-@@ -46,6 +45,7 @@ using namespace std;
- 
- #include "ProcessInterpField.h"
- 
-+using namespace std;
- namespace bg  = boost::geometry;
- namespace bgi = boost::geometry::index;
- 
