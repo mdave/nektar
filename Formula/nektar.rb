@@ -1,8 +1,8 @@
 class Nektar < Formula
   desc "High-performance spectral/hp element framework"
   homepage "https://www.nektar.info/"
-  url "https://gitlab.nektar.info/nektar/nektar/-/archive/v5.4.0/nektar-v5.4.0.tar.bz2"
-  sha256 "d83103385b0809064296cb83c5b1fa61d4d9d138f99a585d78f3cfde6e6586f9"
+  url "https://gitlab.nektar.info/nektar/nektar/-/archive/v5.5.0/nektar-v5.5.0.tar.bz2"
+  sha256 "220caa0384b262e60e16ed232ab0d2248f10fa840efbebd4b2ba0cb0a6fc50cd"
 
   depends_on "arpack"
   depends_on "boost"
@@ -185,3 +185,16 @@ index 01274b4fe..e14263b46 100644
  
      IF (NEKPY_LIBDEPENDS)
          TARGET_LINK_LIBRARIES(_${name} ${NEKPY_LIBDEPENDS})
+diff --git a/cmake/ThirdPartyZlib.cmake b/cmake/ThirdPartyZlib.cmake
+index dd8c4811b..c5cf57441 100644
+--- a/cmake/ThirdPartyZlib.cmake
++++ b/cmake/ThirdPartyZlib.cmake
+@@ -16,7 +16,7 @@ IF(WIN32)
+     SET(BUILD_ZLIB ON)
+ ELSE()
+     FIND_PACKAGE(ZLIB QUIET)
+-    IF (ZLIB_FOUND AND NOT ZLIB_VERSION_PATCH LESS 7)
++    IF (ZLIB_FOUND AND ZLIB_VERSION_STRING VERSION_GREATER 1.2.8)
+         SET(BUILD_ZLIB OFF)
+     ELSE ()
+         SET(BUILD_ZLIB ON)
