@@ -1,13 +1,8 @@
 class Nektar < Formula
   desc "High-performance spectral/hp element framework"
   homepage "https://www.nektar.info/"
-  url "https://gitlab.nektar.info/nektar/nektar/-/archive/v5.5.0/nektar-v5.5.0.tar.bz2"
-  sha256 "220caa0384b262e60e16ed232ab0d2248f10fa840efbebd4b2ba0cb0a6fc50cd"
-
-  bottle do
-    root_url "https://github.com/mdave/homebrew-nektar/releases/download/nektar-5.5.0"
-    sha256 cellar: :any, arm64_sonoma: "52f2daf4dda246f5ebc8b7abc0f126d5cb9be7af3035b242ea08a4fe6ed51cbf"
-  end
+  url "https://gitlab.nektar.info/nektar/nektar/-/archive/v5.6.0/nektar-v5.6.0.tar.bz2"
+  sha256 "215f16b7d62149f49206d71302b36266471a2bd7e45f328cad8a47f16e425c73"
 
   depends_on "arpack"
   depends_on "boost"
@@ -53,12 +48,14 @@ class Nektar < Formula
       system "make", "install"
 
       # Also need to install NekPy bindings
-      python = Formula["python@3.12"]
-      system python.bin/"python3.12", *Language::Python.setup_install_args(prefix)
+      chdir "python" do
+        python = Formula["python@3.12"]
+        system python.bin/"python3.12", *Language::Python.setup_install_args(prefix)
 
-      site_packages = Language::Python.site_packages(python)
-      pth_contents = "import site; site.addsitedir('#{libexec/site_packages}')\n"
-      (prefix/site_packages/"homebrew-nektar.pth").write pth_contents
+        site_packages = Language::Python.site_packages("python3.12")
+        pth_contents = "import site; site.addsitedir('#{libexec/site_packages}')\n"
+        (prefix/site_packages/"homebrew-nektar.pth").write pth_contents
+      end
     end
   end
 
@@ -103,7 +100,7 @@ class Nektar < Formula
     EOS
 
     (testpath/"CMakeLists.txt").write <<~EOS
-      set(CMAKE_CXX_STANDARD 14)
+      set(CMAKE_CXX_STANDARD 17)
       find_package(Nektar++ REQUIRED NO_MODULE NO_DEFAULT_PATH NO_CMAKE_BUILDS_PATH NO_CMAKE_PACKAGE_REGISTRY)
       include_directories(${NEKTAR++_INCLUDE_DIRS} ${NEKTAR++_TP_INCLUDE_DIRS})
       add_definitions(${NEKTAR++_DEFINITIONS})
@@ -190,16 +187,3 @@ index 01274b4fe..e14263b46 100644
  
      IF (NEKPY_LIBDEPENDS)
          TARGET_LINK_LIBRARIES(_${name} ${NEKPY_LIBDEPENDS})
-diff --git a/cmake/ThirdPartyZlib.cmake b/cmake/ThirdPartyZlib.cmake
-index dd8c4811b..c5cf57441 100644
---- a/cmake/ThirdPartyZlib.cmake
-+++ b/cmake/ThirdPartyZlib.cmake
-@@ -16,7 +16,7 @@ IF(WIN32)
-     SET(BUILD_ZLIB ON)
- ELSE()
-     FIND_PACKAGE(ZLIB QUIET)
--    IF (ZLIB_FOUND AND NOT ZLIB_VERSION_PATCH LESS 7)
-+    IF (ZLIB_FOUND AND ZLIB_VERSION_STRING VERSION_GREATER 1.2.8)
-         SET(BUILD_ZLIB OFF)
-     ELSE ()
-         SET(BUILD_ZLIB ON)
